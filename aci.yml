@@ -1,0 +1,42 @@
+apiVersion: 2018-10-01
+location: westeurope
+name: whisper
+properties:
+  containers:
+  - name: whisper
+    properties:
+      image: yourregistry/whispergpu:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGB: 50
+          gpu:
+            count: 1
+            sku: K80
+      #ports:
+      #- port: 7860
+      command: ["/bin/bash", "-c", "mkdir test; touch test/myfile; tail -f /dev/null"]
+      #command: ["python", "launch.py", "--listen"]
+      volumeMounts:
+      - mountPath: /models
+        name: cachemodels
+      - mountPath: /outputs
+        name: outputs
+  osType: Linux
+  restartPolicy: OnFailure
+  volumes:
+  - name: cachemodels
+    azureFile:
+      sharename: models
+      storageAccountName: yourname
+      storageAccountKey: yourkey
+  - name: outputs
+    azureFile:
+      sharename: outputs
+      storageAccountName: yourname
+      storageAccountKey: yourkey
+  imageRegistryCredentials:
+  - server: yourregistry
+    username: registrylogin
+    password: registrypassword
+type: Microsoft.ContainerInstance/containerGroups
